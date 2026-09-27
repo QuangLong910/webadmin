@@ -12,7 +12,7 @@
         .sidebar { width: 240px; min-height: 100vh; background: var(--n9); }
         .sidebar .nav-link { color: var(--n5); border-radius: .375rem; padding: .55rem .8rem; }
         .sidebar .nav-link:hover { color: #fff; background: rgba(255,255,255,.06); }
-        .sidebar .nav-link.active { color: #fff; background: var(--primary); }
+        .sidebar .nav-link.active { color: var(--n9); background: var(--primary); font-weight: 600; }
         .sidebar .step { display: inline-block; width: 1.3rem; font-size: .75rem; opacity: .7; }
         .brand { color: #fff; font-weight: 700; letter-spacing: .02em; }
         .doc-img { width: 100%; max-height: 220px; object-fit: contain; background: var(--n3); border-radius: var(--r2); cursor: zoom-in; }
