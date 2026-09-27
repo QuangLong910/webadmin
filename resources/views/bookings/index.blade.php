@@ -18,11 +18,6 @@
         ],
     ])
 
-    <div class="alert alert-info small py-2">
-        <i class="bi bi-info-circle"></i> Backend chưa có <code>/admin/bookings</code> nên danh sách tạm lấy qua <code>/owner/bookings</code>
-        (chỉ đơn của xe thuộc tài khoản đang đăng nhập). Đơn khác: gõ mã/id vào ô tìm ở góc trên.
-    </div>
-
     <div class="card">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">

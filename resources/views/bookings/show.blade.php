@@ -31,6 +31,26 @@
                         <tr><th class="text-secondary fw-normal">Tiền thuê</th><td class="money">{{ Fmt::money($booking['rentTotal'] ?? null) }}</td></tr>
                         <tr><th class="text-secondary fw-normal">Tiền cọc</th><td class="money">{{ Fmt::money($booking['deposit'] ?? null) }}</td></tr>
                         <tr><th class="text-secondary fw-normal">Hoa hồng sàn</th><td class="money">{{ Fmt::money($booking['commission'] ?? null) }}</td></tr>
+                        @if (($booking['debtAmount'] ?? 0) > 0)
+                            <tr>
+                                <th class="text-secondary fw-normal">Khách nợ</th>
+                                <td>
+                                    <span class="money text-danger fw-semibold">{{ Fmt::money($booking['debtAmount']) }}</span>
+                                    @if (!empty($booking['debtPaidAt']))
+                                        <span class="badge text-bg-success ms-2">Đã thu {{ Fmt::datetime($booking['debtPaidAt']) }}</span>
+                                    @else
+                                        <span class="badge text-bg-danger ms-2">Chưa thu</span>
+                                        <div class="small text-secondary mt-1">Phí phát sinh vượt tiền cọc. Khách chưa đặt được chuyến mới cho tới khi trả.</div>
+                                        <form method="post" action="{{ route('bookings.debt-paid', $booking['id']) }}" class="mt-2"
+                                              data-confirm="Xác nhận đã nhận đủ {{ Fmt::money($booking['debtAmount']) }} tiền nợ của đơn {{ $booking['code'] }}?">
+                                            @csrf
+                                            <input type="hidden" name="idem" value="{{ \Illuminate\Support\Str::uuid() }}">
+                                            <button class="btn btn-sm btn-danger"><i class="bi bi-cash-coin"></i> Đã thu nợ</button>
+                                        </form>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endif
                         <tr><th class="text-secondary fw-normal">Tạo lúc</th><td>{{ Fmt::datetime($booking['createdAt'] ?? null) }}</td></tr>
                         @if (!empty($booking['cancelReason']))
                             <tr><th class="text-secondary fw-normal">Lý do huỷ/hết hạn</th><td class="text-danger">{{ $booking['cancelReason'] }}</td></tr>

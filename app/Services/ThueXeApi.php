@@ -56,6 +56,41 @@ class ThueXeApi
         return $this->send('post', "/admin/documents/{$id}/review", ['approved' => $approved, 'reason' => $reason], $idempotencyKey);
     }
 
+    /** Ảnh giấy tờ: trả về [nội dung, content-type], hoặc null nếu backend không có ảnh. */
+    public function documentImage(int $id, string $side): ?array
+    {
+        try {
+            $res = $this->request(true, null)->withHeaders(['Accept' => 'image/*'])
+                ->get("/admin/documents/{$id}/image/{$side}");
+        } catch (ConnectionException) {
+            return null;
+        }
+        $type = (string) $res->header('Content-Type');
+        if (! $res->successful() || ! str_starts_with($type, 'image/')) {
+            return null;
+        }
+
+        return [$res->body(), $type];
+    }
+
+    /** Ảnh giấy tờ xe (đăng ký, đăng kiểm, uỷ quyền). */
+    public function carDocumentImage(int $carId, int $docId): ?array
+    {
+        return $this->fetchImage("/admin/cars/{$carId}/document/{$docId}");
+    }
+
+    private function fetchImage(string $path): ?array
+    {
+        try {
+            $res = $this->request(true, null)->withHeaders(['Accept' => 'image/*'])->get($path);
+        } catch (ConnectionException) {
+            return null;
+        }
+        $type = (string) $res->header('Content-Type');
+
+        return $res->successful() && str_starts_with($type, 'image/') ? [$res->body(), $type] : null;
+    }
+
     // ---- Xe ----
 
     public function cars(?string $status = null): array
@@ -73,13 +108,13 @@ class ThueXeApi
     /** Chưa có /admin/bookings nên tạm mượn đường của chủ xe (collection Postman cũng làm vậy). */
     public function bookings(?string $status = null): array
     {
-        return $this->send('get', '/owner/bookings', array_filter(['status' => $status]));
+        return $this->send('get', '/admin/bookings', array_filter(['status' => $status]));
     }
 
     /** Trả { booking, payment, handovers, charges }. */
     public function booking(int $id): array
     {
-        return $this->send('get', "/bookings/{$id}");
+        return $this->send('get', "/admin/bookings/{$id}");
     }
 
     public function confirmPayment(int $paymentId, int $receivedAmount, ?string $bankNote, ?string $idempotencyKey = null): array
@@ -88,6 +123,12 @@ class ThueXeApi
             'receivedAmount' => $receivedAmount,
             'bankNote' => $bankNote,
         ], $idempotencyKey);
+    }
+
+    /** Khách đã chuyển khoản trả nợ phí vượt cọc: ghi ví treo và sinh lệnh chi bù cho chủ xe. */
+    public function debtPaid(int $bookingId, ?string $idempotencyKey = null): array
+    {
+        return $this->send('post', "/admin/bookings/{$bookingId}/debt-paid", (object) [], $idempotencyKey);
     }
 
     /** $charges = null → backend tự tính phí từ hai biên bản. */

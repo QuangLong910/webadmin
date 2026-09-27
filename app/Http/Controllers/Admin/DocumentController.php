@@ -29,6 +29,29 @@ class DocumentController extends Controller
         ]);
     }
 
+    public function show(ThueXeApi $api, int $id)
+    {
+        $doc = collect($api->documents(null))->firstWhere('id', $id);
+        abort_if($doc === null, 404, 'Không tìm thấy giấy tờ.');
+
+        return view('documents.show', ['doc' => $doc, 'reasons' => self::REJECT_REASONS]);
+    }
+
+    /** Ảnh giấy tờ đi qua đây (có đăng nhập) thay vì để trình duyệt gọi thẳng backend. */
+    public function image(ThueXeApi $api, int $id, string $side)
+    {
+        abort_unless(in_array($side, ['front', 'back', 'selfie'], true), 404);
+        $img = $api->documentImage($id, $side);
+        abort_if($img === null, 404, 'Không có ảnh.');
+
+        return response($img[0], 200, [
+            'Content-Type' => $img[1],
+            'Cache-Control' => 'no-store, private',
+            'X-Robots-Tag' => 'noindex',
+            'Content-Disposition' => 'inline',
+        ]);
+    }
+
     public function review(Request $request, ThueXeApi $api, int $id)
     {
         $data = $request->validate([
@@ -47,7 +70,8 @@ class DocumentController extends Controller
 
         $res = $api->reviewDocument($id, $approved, $reason, $request->input('idem'));
 
-        return back()->with('success', "Giấy tờ #{$id}: ".Fmt::statusLabel($res['status'] ?? null).'.');
+        // Xong một hồ sơ thì về hàng chờ để duyệt tiếp hồ sơ khác.
+        return redirect()->route('documents.index')->with('success', "Giấy tờ #{$id}: ".Fmt::statusLabel($res['status'] ?? null).'.');
     }
 
     /** Ghép lý do chọn sẵn và ghi chú thêm thành một câu gửi backend. */

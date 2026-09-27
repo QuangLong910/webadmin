@@ -31,6 +31,28 @@ class CarController extends Controller
         ]);
     }
 
+    public function show(ThueXeApi $api, int $id)
+    {
+        $car = collect($api->cars(null))->firstWhere('id', $id);
+        abort_if($car === null, 404, 'Không tìm thấy xe.');
+
+        return view('cars.show', ['car' => self::withChecks($car), 'reasons' => self::REJECT_REASONS]);
+    }
+
+    /** Ảnh giấy tờ xe đi qua đây (có đăng nhập), không để trình duyệt gọi thẳng backend. */
+    public function documentImage(ThueXeApi $api, int $id, int $docId)
+    {
+        $img = $api->carDocumentImage($id, $docId);
+        abort_if($img === null, 404, 'Không có ảnh.');
+
+        return response($img[0], 200, [
+            'Content-Type' => $img[1],
+            'Cache-Control' => 'no-store, private',
+            'X-Robots-Tag' => 'noindex',
+            'Content-Disposition' => 'inline',
+        ]);
+    }
+
     public function review(Request $request, ThueXeApi $api, int $id)
     {
         $data = $request->validate([
@@ -53,7 +75,8 @@ class CarController extends Controller
             $msg .= ' Xe đã hiện trong kết quả tìm kiếm của khách.';
         }
 
-        return back()->with('success', $msg);
+        // Xong một xe thì về hàng chờ để duyệt tiếp xe khác.
+        return redirect()->route('cars.index')->with('success', $msg);
     }
 
     /**

@@ -28,9 +28,13 @@ Route::middleware('admin.auth')->group(function () {
     Route::get('/', DashboardController::class)->name('dashboard');
 
     Route::get('/documents', [DocumentController::class, 'index'])->name('documents.index');
+    Route::get('/documents/{id}', [DocumentController::class, 'show'])->whereNumber('id')->name('documents.show');
+    Route::get('/documents/{id}/image/{side}', [DocumentController::class, 'image'])->whereNumber('id')->name('documents.image');
+    Route::get('/cars/{id}/document/{docId}', [CarController::class, 'documentImage'])->whereNumber(['id', 'docId'])->name('cars.document');
     Route::post('/documents/{id}/review', [DocumentController::class, 'review'])->whereNumber('id')->name('documents.review');
 
     Route::get('/cars', [CarController::class, 'index'])->name('cars.index');
+    Route::get('/cars/{id}', [CarController::class, 'show'])->whereNumber('id')->name('cars.show');
     Route::post('/cars/{id}/review', [CarController::class, 'review'])->whereNumber('id')->name('cars.review');
 
     Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
@@ -38,6 +42,7 @@ Route::middleware('admin.auth')->group(function () {
     Route::get('/bookings/{id}', [BookingController::class, 'show'])->whereNumber('id')->name('bookings.show');
     Route::post('/bookings/{id}/confirm-payment', [BookingController::class, 'confirmPayment'])->whereNumber('id')->name('bookings.confirm-payment');
     Route::post('/bookings/{id}/settle', [BookingController::class, 'settle'])->whereNumber('id')->name('bookings.settle');
+    Route::post('/bookings/{id}/debt-paid', [BookingController::class, 'debtPaid'])->whereNumber('id')->name('bookings.debt-paid');
 
     Route::get('/payouts', [PayoutController::class, 'index'])->name('payouts.index');
     Route::post('/payouts/{id}/paid', [PayoutController::class, 'paid'])->whereNumber('id')->name('payouts.paid');

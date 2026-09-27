@@ -83,6 +83,15 @@ class BookingController extends Controller
             .Fmt::statusLabel($res['booking']['status'] ?? null).', đã mở địa chỉ giao xe và số điện thoại cho hai bên.');
     }
 
+    /** Thu nợ: khách đã chuyển khoản phần phí vượt cọc. */
+    public function debtPaid(Request $request, ThueXeApi $api, int $id)
+    {
+        $res = $api->debtPaid($id, $request->input('idem'));
+        $n = count($res['payouts'] ?? []);
+
+        return back()->with('success', "Đã ghi nhận thu nợ, sinh {$n} lệnh chi bù cho chủ xe — xử lý ở mục Chi trả.");
+    }
+
     /** F2 · Chốt phí. Không gửi charges thì backend tự tính từ hai biên bản. */
     public function settle(Request $request, ThueXeApi $api, int $id)
     {

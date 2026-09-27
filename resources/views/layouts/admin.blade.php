@@ -6,17 +6,18 @@
     <title>@yield('title', 'Quản trị') · Sàn Thuê Xe</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{{ asset('css/theme.css') }}?v=1">
     <style>
-        body { background: #f4f5f7; }
-        .sidebar { width: 240px; min-height: 100vh; background: #1f2933; }
-        .sidebar .nav-link { color: #cbd2d9; border-radius: .375rem; padding: .55rem .8rem; }
+        body { background: var(--n2); }
+        .sidebar { width: 240px; min-height: 100vh; background: var(--n9); }
+        .sidebar .nav-link { color: var(--n5); border-radius: .375rem; padding: .55rem .8rem; }
         .sidebar .nav-link:hover { color: #fff; background: rgba(255,255,255,.06); }
-        .sidebar .nav-link.active { color: #fff; background: #2f80ed; }
+        .sidebar .nav-link.active { color: #fff; background: var(--primary); }
         .sidebar .step { display: inline-block; width: 1.3rem; font-size: .75rem; opacity: .7; }
         .brand { color: #fff; font-weight: 700; letter-spacing: .02em; }
-        .doc-img { width: 100%; max-height: 220px; object-fit: contain; background: #eef0f3; border-radius: .375rem; cursor: zoom-in; }
+        .doc-img { width: 100%; max-height: 220px; object-fit: contain; background: var(--n3); border-radius: var(--r2); cursor: zoom-in; }
         .money { font-variant-numeric: tabular-nums; white-space: nowrap; }
-        .card-queue { border-left: 4px solid #f2c94c; }
+        .card-queue { border-left: 4px solid var(--warning); }
         @media (max-width: 991.98px) { .sidebar { width: 100%; min-height: auto; } }
     </style>
     @stack('head')
@@ -87,8 +88,12 @@
 <div class="modal fade" id="imgModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content bg-dark">
-            <div class="modal-body p-2 text-center">
-                <img id="imgModalSrc" src="" alt="" class="img-fluid">
+            <div class="modal-header border-0 py-2 text-white">
+                <span id="imgModalTitle" class="small"></span>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body p-2 pt-0 text-center">
+                <img id="imgModalSrc" alt="" class="img-fluid">
             </div>
         </div>
     </div>
@@ -102,6 +107,26 @@
         if (!img) return;
         document.getElementById('imgModalSrc').src = img.src;
         bootstrap.Modal.getOrCreateInstance(document.getElementById('imgModal')).show();
+    });
+    // Ảnh giấy tờ chỉ tải khi bấm xem; đóng cửa sổ là bỏ ảnh khỏi trang.
+    document.addEventListener('click', (e) => {
+        const nut = e.target.closest('[data-doc-img]');
+        if (!nut) return;
+        document.getElementById('imgModalSrc').src = nut.dataset.docImg;
+        const tieuDe = document.getElementById('imgModalTitle');
+        if (tieuDe) tieuDe.textContent = nut.dataset.docTitle || '';
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('imgModal')).show();
+    });
+    document.getElementById('imgModal')?.addEventListener('hidden.bs.modal', () => {
+        document.getElementById('imgModalSrc').removeAttribute('src');
+    });
+    // Số giấy tờ: che mặc định, bấm mắt để hiện.
+    document.addEventListener('click', (e) => {
+        const nut = e.target.closest('[data-toggle-so]');
+        if (!nut) return;
+        const o = nut.previousElementSibling;
+        const dangChe = o.textContent === o.dataset.che;
+        o.textContent = dangChe ? o.dataset.so : o.dataset.che;
     });
     // Chặn bấm đúp gửi form hai lần; kèm Idempotency-Key ở phía server.
     document.addEventListener('submit', (e) => {

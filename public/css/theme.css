@@ -1,0 +1,45 @@
+/* Design token "GO NOTI" (Figma). Ghi đè biến Bootstrap 5.3, đổi màu ở đây thì cả web đổi theo. */
+:root {
+  --primary: #5452F6; --primary-pressed: #4332D0; --primary-hover: #7C84FD; --primary-border: #A2AFFF; --primary-tag: #DFE5FF;
+  --sec1: #00B750; --sec2: #344258; --sec3: #583F34;
+  --success: #16A34A; --success-pressed: #039732; --success-tag: #EBFAEF; --success-border: #B3EBC5;
+  --warning: #F59E0C; --warning-pressed: #D97706; --warning-tag: #FFFBEB; --warning-border: #FCD34D;
+  --error: #EF4444; --error-pressed: #DC2626; --error-tag: #FEF2F2; --error-border: #FECACA;
+  --n1: #FFFFFF; --n2: #F9FAF9; --n3: #F4F5F4; --n4: #E7E7E4; --n5: #D6D6D1; --n6: #8D8D8A; --n7: #56584D; --n8: #44453B; --n9: #24231F; --n10: #1C1C17;
+  --r1: 4px; --r2: 8px; --r3: 12px; --r4: 16px; --r5: 24px;
+
+  --bs-primary: var(--primary); --bs-primary-rgb: 84, 82, 246;
+  --bs-success: var(--success); --bs-success-rgb: 22, 163, 74;
+  --bs-warning: var(--warning); --bs-warning-rgb: 245, 158, 12;
+  --bs-danger: var(--error); --bs-danger-rgb: 239, 68, 68;
+  --bs-info: var(--primary); --bs-info-rgb: 84, 82, 246;
+  --bs-secondary: var(--n7); --bs-secondary-rgb: 86, 88, 77;
+  --bs-dark: var(--n9); --bs-dark-rgb: 36, 35, 31;
+  --bs-body-color: var(--n8); --bs-body-color-rgb: 68, 69, 59;
+  --bs-body-bg: var(--n2); --bs-body-bg-rgb: 249, 250, 249;
+  --bs-secondary-color: var(--n7); --bs-tertiary-bg: var(--n3);
+  --bs-border-color: var(--n4);
+  --bs-link-color: var(--primary); --bs-link-hover-color: var(--primary-pressed);
+  --bs-link-color-rgb: 84, 82, 246; --bs-link-hover-color-rgb: 67, 50, 208;
+  --bs-primary-bg-subtle: var(--primary-tag); --bs-primary-border-subtle: var(--primary-border); --bs-primary-text-emphasis: var(--primary-pressed);
+  --bs-success-bg-subtle: var(--success-tag); --bs-success-border-subtle: var(--success-border); --bs-success-text-emphasis: var(--success-pressed);
+  --bs-warning-bg-subtle: var(--warning-tag); --bs-warning-border-subtle: var(--warning-border); --bs-warning-text-emphasis: var(--warning-pressed);
+  --bs-danger-bg-subtle: var(--error-tag); --bs-danger-border-subtle: var(--error-border); --bs-danger-text-emphasis: var(--error-pressed);
+  --bs-border-radius: var(--r2); --bs-border-radius-lg: var(--r3);
+}
+h1, h2, h3, h4, h5, h6 { color: var(--n9); }
+.card { background: var(--n1); border-color: var(--n4); border-radius: var(--r3); }
+.card-header { background: var(--n2); border-bottom-color: var(--n4); }
+.table { --bs-table-bg: transparent; --bs-table-striped-bg: var(--n2); --bs-table-border-color: var(--n4); }
+.table > thead { background: var(--n2); }
+.form-control, .form-select { border-color: var(--n5); border-radius: var(--r2); }
+.form-control:focus, .form-select:focus { border-color: var(--primary-border); box-shadow: 0 0 0 .2rem rgba(84, 82, 246, .18); }
+.btn { border-radius: var(--r2); }
+.btn-primary { --bs-btn-bg: var(--primary); --bs-btn-border-color: var(--primary); --bs-btn-hover-bg: var(--primary-hover); --bs-btn-hover-border-color: var(--primary-hover); --bs-btn-active-bg: var(--primary-pressed); --bs-btn-active-border-color: var(--primary-pressed); --bs-btn-disabled-bg: var(--n5); --bs-btn-disabled-border-color: var(--n5); --bs-btn-disabled-color: var(--n6); --bs-btn-focus-shadow-rgb: 84, 82, 246; }
+.btn-outline-primary { --bs-btn-color: var(--primary); --bs-btn-border-color: var(--primary); --bs-btn-hover-bg: var(--primary); --bs-btn-hover-border-color: var(--primary); --bs-btn-active-bg: var(--primary-pressed); --bs-btn-active-border-color: var(--primary-pressed); }
+.btn-success { --bs-btn-bg: var(--success); --bs-btn-border-color: var(--success); --bs-btn-hover-bg: #4DD077; --bs-btn-hover-border-color: #4DD077; --bs-btn-active-bg: var(--success-pressed); --bs-btn-active-border-color: var(--success-pressed); }
+.btn-danger { --bs-btn-bg: var(--error); --bs-btn-border-color: var(--error); --bs-btn-hover-bg: #F87171; --bs-btn-hover-border-color: #F87171; --bs-btn-active-bg: var(--error-pressed); --bs-btn-active-border-color: var(--error-pressed); }
+.btn-warning { --bs-btn-bg: var(--warning); --bs-btn-border-color: var(--warning); --bs-btn-color: var(--n10); --bs-btn-hover-bg: #FBBF24; --bs-btn-hover-border-color: #FBBF24; --bs-btn-hover-color: var(--n10); --bs-btn-active-bg: var(--warning-pressed); --bs-btn-active-border-color: var(--warning-pressed); }
+.badge { border-radius: var(--r2); font-weight: 600; }
+.nav-tabs .nav-link.active, .nav-pills .nav-link.active { color: var(--primary); }
+.nav-pills .nav-link.active { background: var(--primary-tag); }
