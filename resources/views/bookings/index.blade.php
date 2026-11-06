@@ -35,7 +35,7 @@
                 </thead>
                 <tbody>
                 @forelse ($bookings as $b)
-                    <tr>
+                    <tr class="{{ $b['status'] === 'TRANH_CHAP' ? 'table-danger' : '' }}">
                         <td><a href="{{ route('bookings.show', $b['id']) }}" class="fw-semibold font-monospace">{{ $b['code'] }}</a><div class="small text-secondary">#{{ $b['id'] }}</div></td>
                         <td>{{ $b['car']['brand'] ?? '' }} {{ $b['car']['model'] ?? '' }}<div class="small text-secondary">{{ $b['car']['plate'] ?? '' }}</div></td>
                         <td>{{ $b['renter']['fullName'] ?? '—' }}<div class="small text-secondary">{{ $b['renter']['phone'] ?? '' }}</div></td>
@@ -48,6 +48,7 @@
                                 $cta = match ($b['status']) {
                                     'CHO_THANH_TOAN' => ['Xác nhận tiền', 'btn-warning'],
                                     'CHO_QUYET_TOAN' => ['Quyết toán', 'btn-warning'],
+                                    'TRANH_CHAP' => ['Xử lý tranh chấp', 'btn-danger'],
                                     default => ['Chi tiết', 'btn-outline-secondary'],
                                 };
                             @endphp

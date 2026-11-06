@@ -5,6 +5,56 @@
 @section('content')
     @php $status = $booking['status'] ?? null; @endphp
 
+    @if ($status === 'TRANH_CHAP')
+        <div class="card border-danger mb-3">
+            <div class="card-header bg-danger-subtle"><strong><i class="bi bi-exclamation-octagon"></i> Đang tranh chấp</strong></div>
+            <div class="card-body">
+                <p class="mb-1">
+                    <strong>Bên mở:</strong> {{ Fmt::label($booking['disputeOpenedBy'] ?? null) }}
+                    @if (!empty($booking['disputeOpenedAt']))
+                        · {{ Fmt::ago($booking['disputeOpenedAt']) }}
+                    @endif
+                </p>
+                <p class="mb-3">{{ $booking['disputeReason'] ?? '—' }}</p>
+
+                <form method="post" action="{{ route('bookings.dispute-resolve', $booking['id']) }}"
+                      data-confirm="Kết luận tranh chấp đơn {{ $booking['code'] }}? Không sửa lại được sau khi gửi.">
+                    @csrf
+                    <input type="hidden" name="idem" value="{{ Str::uuid() }}">
+                    <div class="mb-2">
+                        <label class="form-label small">Ghi chú kết luận (không bắt buộc)</label>
+                        <textarea class="form-control form-control-sm" name="note" rows="2" maxlength="500">{{ old('note') }}</textarea>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-secondary" name="outcome" value="RESUME">
+                            <i class="bi bi-arrow-counterclockwise"></i> Không sao, quay lại {{ Fmt::statusLabel($booking['preDisputeStatus'] ?? null) }}
+                        </button>
+                        @if (($booking['preDisputeStatus'] ?? null) !== 'CHO_QUYET_TOAN')
+                            <button class="btn btn-outline-danger" name="outcome" value="CANCEL_REFUND_RENTER">
+                                <i class="bi bi-x-circle"></i> Lỗi chủ xe: huỷ, hoàn 100% cho khách
+                            </button>
+                            <button class="btn btn-outline-danger" name="outcome" value="CANCEL_COMPENSATE_OWNER">
+                                <i class="bi bi-x-circle"></i> Lỗi khách: huỷ, đền bù tiền thuê cho chủ xe
+                            </button>
+                        @endif
+                    </div>
+                    @if (($booking['preDisputeStatus'] ?? null) === 'CHO_QUYET_TOAN')
+                        <div class="small text-secondary mt-2">
+                            Chuyến đã chạy xong, chỉ tranh cãi tiền phí — chỉ "quay lại" rồi chốt lại phí ở mục quyết toán bên dưới, không huỷ được cả đơn.
+                        </div>
+                    @endif
+                </form>
+            </div>
+        </div>
+    @endif
+
+    @if (!empty($booking['extendRequestedEndDate']))
+        <div class="alert alert-info small mb-3">
+            <i class="bi bi-calendar-plus"></i> Khách xin gia hạn tới <strong>{{ Fmt::date($booking['extendRequestedEndDate']) }}</strong>
+            ({{ Fmt::ago($booking['extendRequestedAt'] ?? null) }}) — chờ chủ xe duyệt trong app, web không duyệt thay được.
+        </div>
+    @endif
+
     <div class="row g-3">
         {{-- Thông tin đơn --}}
         <div class="col-xl-5">
@@ -177,6 +227,20 @@
                         <p class="text-secondary">Chưa có khoản phí nào.</p>
                     @endif
 
+                    @if ($status === 'HOAN_TAT')
+                        <form method="post" action="{{ route('bookings.late-fine', $booking['id']) }}" class="border-top pt-3 mt-3"
+                              data-confirm="Ghi phạt nguội cho đơn {{ $booking['code'] }}? Sẽ cộng thẳng vào khoản nợ của khách.">
+                            @csrf
+                            <input type="hidden" name="idem" value="{{ Str::uuid() }}">
+                            <div class="small text-secondary mb-2">Phạt nguội hoặc chi phí phát hiện sau khi đơn đã đóng — cộng vào khoản nợ, khách phải trả trước khi đặt chuyến mới.</div>
+                            <div class="row g-2">
+                                <div class="col-md-4"><input type="number" min="1" step="1" class="form-control form-control-sm" name="amount" placeholder="Số tiền" required></div>
+                                <div class="col-md-8"><input class="form-control form-control-sm" name="note" placeholder="Lý do, VD: phạt vượt đèn đỏ 15/09" maxlength="300" required></div>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger mt-2"><i class="bi bi-exclamation-triangle"></i> Ghi phạt nguội</button>
+                        </form>
+                    @endif
+
                     @if ($status === 'CHO_QUYET_TOAN')
                         <form method="post" action="{{ route('bookings.settle', $booking['id']) }}" id="settleForm"
                               data-confirm="Chốt quyết toán đơn {{ $booking['code'] }}? Sau khi chốt sẽ sinh lệnh chi cho chủ xe và khách.">
@@ -214,6 +278,42 @@
                 </div>
             </div>
         </div>
+
+        {{-- Sự cố giữa chuyến --}}
+        @if (count($incidents ?? []))
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header"><strong><i class="bi bi-exclamation-diamond"></i> Sự cố giữa chuyến</strong></div>
+                    <div class="card-body">
+                        @foreach ($incidents as $i)
+                            @php $vaCham = ($i['type'] ?? null) === 'VA_CHAM'; @endphp
+                            <div class="border rounded p-2 mb-2 {{ $vaCham ? 'border-danger' : '' }}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ Fmt::label($i['reportedBy'] ?? null) }} báo</strong>
+                                        <span class="badge {{ $vaCham ? 'text-bg-danger' : 'text-bg-secondary' }} ms-1">{{ Fmt::label($i['type'] ?? 'KHAC') }}</span>
+                                    </div>
+                                    <span class="small text-secondary">{{ Fmt::datetime($i['createdAt'] ?? null) }}</span>
+                                </div>
+                                <div class="small">{{ $i['note'] ?? '' }}</div>
+                                @if ($vaCham)
+                                    <a href="{{ route('cars.show', $booking['carId']) }}" class="small">
+                                        <i class="bi bi-file-earmark-text"></i> Xem hồ sơ xe (giấy bảo hiểm TNDS) để hướng dẫn chủ xe làm bồi thường →
+                                    </a>
+                                @endif
+                                @if (!empty($i['photoUrls']))
+                                    <div class="d-flex flex-wrap gap-1 mt-1">
+                                        @foreach ($i['photoUrls'] as $url)
+                                            <img class="doc-img" style="width: 80px; height: 60px" src="{{ Fmt::file($url) }}" alt="Ảnh sự cố">
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @endif
 
         {{-- Lệnh chi --}}
         <div class="col-12">

@@ -16,9 +16,11 @@ class DashboardController extends Controller
             'carCount' => count($api->cars('CHO_DUYET')),
             'unpaidCount' => count($api->bookings('CHO_THANH_TOAN')),
             'settleCount' => count($api->bookings('CHO_QUYET_TOAN')),
+            'disputeCount' => count($api->bookings('TRANH_CHAP')),
             'payoutCount' => count($payouts),
             'payoutTotal' => array_sum(array_column($payouts, 'amount')),
             'payoutNoBank' => count(array_filter($payouts, fn ($p) => ($p['bankAccount'] ?? null) === 'CHUA_CO')),
+            'payoutFailedCount' => count($api->payouts('LOI')),
         ]);
     }
 }

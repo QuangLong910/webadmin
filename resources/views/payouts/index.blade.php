@@ -6,7 +6,7 @@
     @include('partials.status-tabs', [
         'route' => 'payouts.index',
         'current' => $status,
-        'tabs' => ['CHO' => 'Chờ chuyển khoản', 'DA_CHI' => 'Đã chi', '' => 'Tất cả'],
+        'tabs' => ['CHO' => 'Chờ chuyển khoản', 'LOI' => 'Chuyển lỗi', 'DA_CHI' => 'Đã chi', '' => 'Tất cả'],
     ])
 
     @if ($status === 'CHO')
@@ -19,7 +19,7 @@
 
     @forelse ($payouts as $p)
         @php $noBank = ($p['bankAccount'] ?? null) === 'CHUA_CO' || empty($p['bankAccount']); @endphp
-        <div class="card mb-2 {{ $noBank && $p['status'] === 'CHO' ? 'border-danger' : '' }}">
+        <div class="card mb-2 {{ ($noBank && $p['status'] === 'CHO') || $p['status'] === 'LOI' ? 'border-danger' : '' }}">
             <div class="card-body">
                 <div class="row g-3 align-items-center">
                     <div class="col-lg-4">
@@ -42,7 +42,10 @@
                         <div class="fs-5 fw-semibold money mt-1">{{ Fmt::money($p['amount']) }}</div>
                     </div>
                     <div class="col-lg-5">
-                        @if ($p['status'] === 'CHO')
+                        @if (!empty($p['failNote']))
+                            <div class="small text-danger mb-1"><i class="bi bi-x-octagon"></i> Lần trước lỗi: {{ $p['failNote'] }}</div>
+                        @endif
+                        @if (in_array($p['status'], ['CHO', 'LOI'], true))
                             <form method="post" action="{{ route('payouts.paid', $p['id']) }}"
                                   data-confirm="Ghi nhận đã chuyển {{ Fmt::money($p['amount']) }} cho {{ $p['payee']['fullName'] ?? '' }}?">
                                 @csrf
@@ -61,6 +64,17 @@
                                     <button class="btn btn-success"><i class="bi bi-check2"></i> Đã chuyển</button>
                                 </div>
                             </form>
+                            @if ($p['status'] === 'CHO')
+                                <form method="post" action="{{ route('payouts.failed', $p['id']) }}" class="mt-1"
+                                      data-confirm="Đánh dấu lệnh #{{ $p['id'] }} chuyển thất bại?">
+                                    @csrf
+                                    <input type="hidden" name="idem" value="{{ Str::uuid() }}">
+                                    <div class="input-group input-group-sm">
+                                        <input class="form-control" name="reason" placeholder="Lý do lỗi, VD: sai số tài khoản" required maxlength="300">
+                                        <button class="btn btn-outline-danger"><i class="bi bi-x-octagon"></i> Đánh dấu lỗi</button>
+                                    </div>
+                                </form>
+                            @endif
                         @else
                             <div class="small">Mã GD: <span class="font-monospace">{{ $p['transferRef'] ?? '—' }}</span></div>
                             <div class="small text-secondary">Chi lúc {{ Fmt::datetime($p['paidAt'] ?? null) }}</div>

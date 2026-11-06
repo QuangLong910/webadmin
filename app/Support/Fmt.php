@@ -37,6 +37,7 @@ class Fmt
         'DA_NHAN' => ['Đã nhận', 'success'],
         'DA_CHI' => ['Đã chi', 'success'],
         'THAT_BAI' => ['Thất bại', 'danger'],
+        'LOI' => ['Chuyển lỗi', 'danger'],
     ];
 
     public const DOC_TYPES = [
@@ -50,7 +51,17 @@ class Fmt
         'QUA_GIO' => 'Quá giờ',
         'QUA_KM' => 'Quá km',
         'NHIEN_LIEU' => 'Nhiên liệu thiếu',
+        'HU_HONG' => 'Hư hỏng, trầy xước',
+        'VE_SINH' => 'Vệ sinh xe',
+        'MAT_PHU_KIEN' => 'Mất phụ kiện',
+        'PHI_CAU_DUONG' => 'Phí cầu đường',
+        'PHI_DO_XE' => 'Phí đỗ xe',
+        'NGAY_NGHI_SUA' => 'Ngày xe nghỉ sửa',
+        // PHAT_NGUOI không cho chọn lúc quyết toán — đi qua form Phạt nguội riêng
+        // (bookings.late-fine), chỉ dùng SAU khi đơn đã hoàn tất.
     ];
+
+    public const LATE_FINE_TYPE = 'PHAT_NGUOI';
 
     public const ACCOUNTS = [
         'KHACH' => 'Khách',
@@ -70,6 +81,9 @@ class Fmt
         'TRA' => 'Trả xe',
         'NO' => 'Nợ',
         'CO' => 'Có',
+        'PHAT_NGUOI' => 'Phạt nguội',
+        'VA_CHAM' => 'Va chạm / tai nạn',
+        'KHAC' => 'Khác',
     ];
 
     /** URL tuyệt đối cho ảnh backend trả dạng "/files/...". */

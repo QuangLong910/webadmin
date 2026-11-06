@@ -43,9 +43,12 @@ Route::middleware('admin.auth')->group(function () {
     Route::post('/bookings/{id}/confirm-payment', [BookingController::class, 'confirmPayment'])->whereNumber('id')->name('bookings.confirm-payment');
     Route::post('/bookings/{id}/settle', [BookingController::class, 'settle'])->whereNumber('id')->name('bookings.settle');
     Route::post('/bookings/{id}/debt-paid', [BookingController::class, 'debtPaid'])->whereNumber('id')->name('bookings.debt-paid');
+    Route::post('/bookings/{id}/dispute/resolve', [BookingController::class, 'resolveDispute'])->whereNumber('id')->name('bookings.dispute-resolve');
+    Route::post('/bookings/{id}/late-fine', [BookingController::class, 'lateFine'])->whereNumber('id')->name('bookings.late-fine');
 
     Route::get('/payouts', [PayoutController::class, 'index'])->name('payouts.index');
     Route::post('/payouts/{id}/paid', [PayoutController::class, 'paid'])->whereNumber('id')->name('payouts.paid');
+    Route::post('/payouts/{id}/failed', [PayoutController::class, 'failed'])->whereNumber('id')->name('payouts.failed');
 
     Route::get('/ledger', [LedgerController::class, 'index'])->name('ledger.index');
 });

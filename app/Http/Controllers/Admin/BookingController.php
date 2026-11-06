@@ -55,6 +55,7 @@ class BookingController extends Controller
             'payment' => $detail['payment'] ?? null,
             'handovers' => $detail['handovers'] ?? [],
             'charges' => $detail['charges'] ?? [],
+            'incidents' => $detail['incidents'] ?? [],
             'payouts' => $payouts,
             'ledger' => $api->ledger($id),
         ]);
@@ -123,5 +124,31 @@ class BookingController extends Controller
 
         return back()->with('success', 'Đã chốt quyết toán. Đơn sang '.Fmt::statusLabel($res['booking']['status'] ?? null)
             .", sinh {$n} lệnh chi — xử lý ở mục Chi trả.");
+    }
+
+    /** Kết luận một vụ tranh chấp: quay lại bình thường, hoặc huỷ và chia tiền theo lỗi của bên nào. */
+    public function resolveDispute(Request $request, ThueXeApi $api, int $id)
+    {
+        $data = $request->validate([
+            'outcome' => ['required', Rule::in(['RESUME', 'CANCEL_REFUND_RENTER', 'CANCEL_COMPENSATE_OWNER'])],
+            'note' => ['nullable', 'string', 'max:500'],
+        ], [], ['outcome' => 'hướng xử lý']);
+
+        $res = $api->resolveDispute($id, $data['outcome'], $data['note'] ?? null, $request->input('idem'));
+
+        return back()->with('success', 'Đã kết luận tranh chấp. Đơn sang '.Fmt::statusLabel($res['status'] ?? null).'.');
+    }
+
+    /** Phạt nguội phát hiện sau khi đơn đã hoàn tất — cộng vào khoản nợ của khách. */
+    public function lateFine(Request $request, ThueXeApi $api, int $id)
+    {
+        $data = $request->validate([
+            'amount' => ['required', 'integer', 'min:1'],
+            'note' => ['required', 'string', 'max:300'],
+        ], [], ['amount' => 'số tiền phạt']);
+
+        $api->lateFine($id, (int) $data['amount'], $data['note'], $request->input('idem'));
+
+        return back()->with('success', 'Đã ghi phạt nguội '.Fmt::money($data['amount']).', cộng vào khoản nợ của khách.');
     }
 }

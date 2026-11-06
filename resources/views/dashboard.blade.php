@@ -9,6 +9,7 @@
             ['cars.index', ['status' => 'CHO_DUYET'], 'bi-car-front', 'Xe chờ duyệt', $carCount, 'Duyệt trong 24 giờ, so tên đăng ký với CCCD'],
             ['bookings.index', ['status' => 'CHO_THANH_TOAN'], 'bi-qr-code', 'Đơn chờ khách trả tiền', $unpaidCount, 'Đối chiếu sao kê rồi xác nhận'],
             ['bookings.index', ['status' => 'CHO_QUYET_TOAN'], 'bi-calculator', 'Đơn chờ quyết toán', $settleCount, 'Đã đủ biên bản giao và trả'],
+            ['bookings.index', ['status' => 'TRANH_CHAP'], 'bi-exclamation-octagon', 'Đơn đang tranh chấp', $disputeCount, 'Cần kết luận sớm, tiền đang giữ trong ví treo'],
         ];
     @endphp
 
@@ -37,6 +38,12 @@
                 <div class="small text-secondary">Chuyển tay trong 24 giờ, dán mã giao dịch, rồi đối soát sao kê với sổ cái.</div>
                 @if ($payoutNoBank)
                     <div class="small text-danger mt-1"><i class="bi bi-exclamation-triangle"></i> {{ $payoutNoBank }} lệnh chưa có số tài khoản người nhận — phải gọi hỏi trước khi chuyển.</div>
+                @endif
+                @if ($payoutFailedCount)
+                    <div class="small text-danger mt-1">
+                        <i class="bi bi-x-octagon"></i> {{ $payoutFailedCount }} lệnh chuyển lỗi lần trước —
+                        <a href="{{ route('payouts.index', ['status' => 'LOI']) }}">xem và thử lại</a>.
+                    </div>
                 @endif
             </div>
             <a href="{{ route('payouts.index') }}" class="btn btn-warning">Mở danh sách chi trả</a>

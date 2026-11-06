@@ -139,6 +139,27 @@ class ThueXeApi
         return $this->send('post', "/admin/bookings/{$bookingId}/settle", $body, $idempotencyKey);
     }
 
+    /**
+     * Kết luận tranh chấp. $outcome: RESUME | CANCEL_REFUND_RENTER | CANCEL_COMPENSATE_OWNER.
+     * Chuyến đã chạy xong (chờ quyết toán) thì chỉ RESUME được, backend tự chặn CANCEL_*.
+     */
+    public function resolveDispute(int $bookingId, string $outcome, ?string $note, ?string $idempotencyKey = null): array
+    {
+        return $this->send('post', "/admin/bookings/{$bookingId}/dispute/resolve", [
+            'outcome' => $outcome,
+            'note' => $note,
+        ], $idempotencyKey);
+    }
+
+    /** Phạt nguội phát hiện sau khi đơn đã hoàn tất — cộng vào khoản nợ, khoá đặt đơn mới. */
+    public function lateFine(int $bookingId, int $amount, string $note, ?string $idempotencyKey = null): array
+    {
+        return $this->send('post', "/admin/bookings/{$bookingId}/late-fine", [
+            'amount' => $amount,
+            'note' => $note,
+        ], $idempotencyKey);
+    }
+
     // ---- Chi trả & sổ cái ----
 
     public function payouts(?string $status = null): array
@@ -149,6 +170,12 @@ class ThueXeApi
     public function markPayoutPaid(int $id, string $transferRef, ?string $idempotencyKey = null): array
     {
         return $this->send('post', "/admin/payouts/{$id}/paid", ['transferRef' => $transferRef], $idempotencyKey);
+    }
+
+    /** Tài khoản sai, ngân hàng từ chối… Đánh dấu để lọc ra sửa rồi vẫn gọi lại markPayoutPaid được. */
+    public function markPayoutFailed(int $id, string $reason, ?string $idempotencyKey = null): array
+    {
+        return $this->send('post', "/admin/payouts/{$id}/failed", ['reason' => $reason], $idempotencyKey);
     }
 
     /** Trả { bookingId, entries, tongNo, tongCo, canBang }. */

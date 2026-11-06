@@ -42,4 +42,16 @@ class PayoutController extends Controller
         return back()->with('success', "Lệnh chi #{$id}: ".Fmt::statusLabel($res['status'] ?? null)
             .' · mã GD '.($res['transferRef'] ?? $data['transfer_ref']).'. Đơn chỉ sang Hoàn tất khi mọi lệnh chi của đơn đã chi.');
     }
+
+    /** Tài khoản sai, ngân hàng từ chối… Đánh dấu lỗi rồi sửa lại, gọi /paid như bình thường để thử lại. */
+    public function failed(Request $request, ThueXeApi $api, int $id)
+    {
+        $data = $request->validate([
+            'reason' => ['required', 'string', 'max:300'],
+        ], [], ['reason' => 'lý do chuyển thất bại']);
+
+        $api->markPayoutFailed($id, $data['reason'], $request->input('idem'));
+
+        return back()->with('warning', "Lệnh chi #{$id} đã đánh dấu chuyển lỗi. Sửa lại thông tin rồi bấm \"Đã chuyển\" để thử lại.");
+    }
 }
